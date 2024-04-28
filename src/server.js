@@ -68,7 +68,7 @@ app.post("/", async (req, res) => {
   }
 })
 
-app.put('/', async function (req, res) {
+app.put('/contact', async function (req, res) {
   try {
     const personId = req.body.id;
     const updatedPerson = req.body;
