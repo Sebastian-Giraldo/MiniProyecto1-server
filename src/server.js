@@ -48,69 +48,60 @@ async function run() {
 }
 run().catch(console.dir);
 
-// Server startup confirmation
-app.listen(port, () => {
-  console.log("Server listening on port: ", port);
-});
-
-// Configuracion del Nodemailer
-
 // Routes of acces methods
 app.get("/", async (req, res) => {
-  try {
-    const persons = await client
-      .db("test")
-      .collection("persons")
-      .find()
-      .toArray();
-    res.json(persons);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  try{
+      const persons = await client.db("test").collection("persons").find().toArray();
+      res.status(200).json(persons);
+  }catch(err){
+      res.status(500).json({error: err.message})
   }
-});
+})
 
-app.get("/:id", async (req, res) => {
+app.post("/", async (req, res) => {
+  try{
+      const newPerson = req.body;
+      const result = await client.db("test").collection("persons").insertOne(newPerson);
+      res.status(201).json(result);
+  }catch(err){
+      res.status(500).json({error: err.message})
+  }
+})
+
+app.put('/', async function (req, res) {
   try {
-    const personId = req.params.id;
-    const person = await client
-      .db("test")
-      .collection("persons")
-      .findOne({ _id: ObjectId(personId) });
-    if (!person) {
-      throw new Error("Persona no encontrada");
+    const personId = req.body.id;
+    const updatedPerson = req.body;
+    const result = await client.db("test").collection("persons").updateOne(
+      { _id: new ObjectId(personId) },
+      { $set: updatedPerson }
+    );
+    if (result.modifiedCount > 0) {
+      res.status(200).send("Person updated successfully");
+    } else {
+      res.status(404).send("Person not found");
     }
-    res.json(person);
-  } catch (error) {
-    res.status(404).json({ error: error.message });
+  } catch (err) {
+    res.end("Person not updated");
   }
 });
 
-app.post("/contact", async (req, res) => {
+app.delete('/', async function (req, res) {
   try {
-    const newData = req.body;
-    const result = await client
-      .db("test")
-      .collection("persons")
-      .insertOne(newData);
-
-    const mailOptions = {
-      from: newData.email, // El remitente es el correo electrónico proporcionado en el formulario
-      to: process.env.EMAIL_TO,
-      subject: "Nuevo mensaje de contacto",
-      text: `Nuevo mensaje de contacto recibido de ${newData.name} (${newData.email}):\n\n${newData.message}`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email:", error);
-        res.status(500).json({ error: "Error sending email" });
-      } else {
-        console.log("Email sent:", info.response);
-        res.status(201).json({ message: "Data saved and email sent" });
-      }
-    });
-  } catch (error) {
-    console.error("Error processing request:", error);
-    res.status(500).json({ error: error.message });
+    const personId = req.body.id;
+    const result = await client.db("test").collection("persons").deleteOne({ _id: ObjectId(personId) });
+    if (result.deletedCount > 0) {
+      res.status(200).send("Person deleted successfully");
+    } else {
+      res.status(404).send("Person not found");
+    }
+  } catch (err) {
+    res.end("Person not deleted");
   }
+});
+
+
+// Server startup confirmation
+app.listen(port, () => {
+  console.log("Welcome Server listening on port: ", port);
 });
