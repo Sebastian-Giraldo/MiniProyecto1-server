@@ -14,7 +14,7 @@ const port = process.env.PORT;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors(
-  origin: 'https://mini-proyecto1-client.vercel.app/',
+  origin: process.env.CLIENT_URL,
 ))
 
 // Make connection to BD in this case MongoDB
