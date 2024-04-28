@@ -13,9 +13,11 @@ const port = process.env.PORT;
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors(
-  origin: process.env.CLIENT_URL,
-))
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+  })
+);
 
 // Make connection to BD in this case MongoDB
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -53,7 +55,6 @@ app.listen(port, () => {
 
 // Configuracion del Nodemailer
 
-
 // Routes of acces methods
 app.get("/", async (req, res) => {
   try {
@@ -86,29 +87,30 @@ app.get("/:id", async (req, res) => {
 
 app.post("/contact", async (req, res) => {
   try {
-      const newData = req.body;
-      const result = await client.db("test").collection("persons").insertOne(newData);
+    const newData = req.body;
+    const result = await client
+      .db("test")
+      .collection("persons")
+      .insertOne(newData);
 
-      const mailOptions = {
-          from: newData.email, // El remitente es el correo electrónico proporcionado en el formulario
-          to: process.env.EMAIL_TO,
-          subject: "Nuevo mensaje de contacto",
-          text: `Nuevo mensaje de contacto recibido de ${newData.name} (${newData.email}):\n\n${newData.message}`,
-      };
+    const mailOptions = {
+      from: newData.email, // El remitente es el correo electrónico proporcionado en el formulario
+      to: process.env.EMAIL_TO,
+      subject: "Nuevo mensaje de contacto",
+      text: `Nuevo mensaje de contacto recibido de ${newData.name} (${newData.email}):\n\n${newData.message}`,
+    };
 
-      transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-              console.error("Error sending email:", error);
-              res.status(500).json({ error: "Error sending email" });
-          } else {
-              console.log("Email sent:", info.response);
-              res.status(201).json({ message: "Data saved and email sent" });
-          }
-      });
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        res.status(500).json({ error: "Error sending email" });
+      } else {
+        console.log("Email sent:", info.response);
+        res.status(201).json({ message: "Data saved and email sent" });
+      }
+    });
   } catch (error) {
-      console.error("Error processing request:", error);
-      res.status(500).json({ error: error.message });
+    console.error("Error processing request:", error);
+    res.status(500).json({ error: error.message });
   }
 });
-
-
