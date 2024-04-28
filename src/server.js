@@ -4,6 +4,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const transporter = require("./nodemailerConfig");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
@@ -12,6 +13,9 @@ const port = process.env.PORT;
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors(
+  origin: 'https://mini-proyecto1-client.vercel.app/',
+))
 
 // Make connection to BD in this case MongoDB
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
