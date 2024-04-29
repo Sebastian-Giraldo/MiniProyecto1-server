@@ -41,9 +41,12 @@ async function run() {
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+    // Escuchar en el puerto especificado
+    app.listen(port, () => {
+      console.log("Welcome Server listening on port: ", port);
+    });
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
   }
 }
 run().catch(console.dir);
